@@ -140,6 +140,19 @@ It also respects a few extra fields under the `value` attribute of each option:
 
 Use the `--sync` flag of the [config validation command](../ddev/cli.md#ddev-validate-config) to render the example configuration files.
 
+## Data model consumer
+
+The [model consumer][config-spec-model-consumer] uses each spec to render the [pydantic](https://github.com/samuelcolvin/pydantic) models
+that checks use to validate and interface with configuration. The models are shipped with every Agent and individual Integration release.
+
+It respects an extra field under the `value` attribute of each option:
+
+- `default` - This is the default value that options will be set to, taking precedence over the `example`.
+
+### Usage
+
+Use the `--sync` flag of the [model validation command](../ddev/cli.md#ddev-validate-models) to render the data model files.
+
 ## API
 
 ::: datadog_checks.dev.tooling.specs.configuration.ConfigSpec
