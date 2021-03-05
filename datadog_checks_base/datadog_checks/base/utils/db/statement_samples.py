@@ -20,13 +20,14 @@ except ImportError:
 logger = logging.getLogger(__file__)
 
 
-class EventEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, decimal.Decimal):
-            return float(o)
-        if isinstance(o, (datetime.date, datetime.datetime)):
-            return o.isoformat()
-        return super(EventEncoder, self).default(o)
+def default_encoding(o):
+    if isinstance(o, decimal.Decimal):
+        return float(o)
+    if isinstance(o, (datetime.date, datetime.datetime)):
+        return o.isoformat()
+    if isinstance(o, bytes):
+        return "..."
+    raise TypeError
 
 
 def _chunks(items, n):
@@ -106,7 +107,7 @@ class StatementSamplesClient:
                     r = http.request(
                         'post',
                         url,
-                        data=json.dumps(chunk, cls=EventEncoder),
+                        data=json.dumps(chunk, default=default_encoding),
                         timeout=5,
                         headers={'Content-Type': 'application/json'},
                     )
@@ -127,7 +128,10 @@ class StubStatementSamplesClient:
         self._events = []
 
     def submit_events(self, events):
+        # serialize the events to json to make sure we're testing the json serialization, but store the original events
+        # so tests have easy access to them
         events = list(events)
+        json.dumps(events, default=default_encoding)
         self._events.extend(events)
         return len(events), 0
 
